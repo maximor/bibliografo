@@ -6,16 +6,17 @@
 %Hechos
 %:-dynamic libro/8.
 :-dynamic bibliografo/2.
+%bibliografo(Nombre,Sueldo,Porcentaje,Ingreso)
 :-dynamic fecha/3.
 :-dynamic bibliografo/2.
+:-dynamic bibliografoEx/2.
+:-dynamic filtrodb/6.
 :-dynamic ingresoExtra/3.
 :-dynamic disponible/1.
 :-dynamic resultado/1.
+:-dynamic temporal/1.
 
 %Libro(Titulo,Autor,Genero,Precio,Fecha,Raiting,Estado,ISBN)
-
-padre(michael, petter).
-padre(michael, martha).
 
 libro('Lo que el viento se llevo','Carol Mitchel',['romantico','historico'],700,date(2019,08,15),4.5,nuevo,78965412365987415).
 libro('Salvage y apasionado','Emili Sant',['romantico','sensual'],300,date(2007,06,3),4,nuevo,8748945412365987415).
@@ -28,7 +29,7 @@ pertenece(X,[X|_]).
 pertenece(X,[_|Cola]):-pertenece(X,Cola).
 
 %Con esta regla se podra actualizar el sueldo del bibliografo
-actualizarSueldo(X):-bibliografo(Y,Z),Y=Q,retract(bibliografo(_,_)),assert(bibliografo(Q,X)),write('EL nuevo sueldo es'),tab(3),write(X).
+actualizarSueldo(X):-bibliografo(Y,_),Y=Q,retract(bibliografo(_,_)),assert(bibliografo(Q,X)),write('EL nuevo sueldo es'),tab(3),write(X).
 
 actualizarDisponible(Disponible):-retractall(disponible(X)),assert(disponible(Disponible)).
 % Con esta regla se van a sumar los ingresos extras todos los ingresos
@@ -40,9 +41,9 @@ sumarIngreso(Mes,Total):-aggregate_all(sum(Ingreso),ingresoExtra(_,Ingreso,Mes),
 % Las preguntas de esta regla deberia estar en el programa de prolog y
 % aqui llegar con la opcion de que desea usar elejida para solamente
 % verificar la eleccion y hacer los calculos
-disponiblecompra(Porcentaje,_,1):-bibliografo(_,Sueldo),Disponible is (Sueldo*(Porcentaje/100)),actualizarDisponible(Disponible),!.
-disponiblecompra(_,IngresoExtra,2):-actualizarDisponible(IngresoExtra),!.
-disponiblecompra(Porcentaje,IngresoExtra,3):-bibliografo(_,Sueldo),Disponible is (IngresoExtra + (Sueldo*(Porcentaje/100))),assert(disponible(Disponible)),!.
+disponiblecompra(Sueldo,Porcentaje,_,1):-Disponible is (Sueldo*(Porcentaje/100)),actualizarDisponible(Disponible),!.
+disponiblecompra(_,_,IngresoExtra,2):-actualizarDisponible(IngresoExtra),!.
+disponiblecompra(Sueldo,Porcentaje,IngresoExtra,3):-Disponible is (IngresoExtra + (Sueldo*(Porcentaje/100))),assert(disponible(Disponible)),!.
 
 
 % Este mes me entraron adicionalmente a mi sueldo 5,500 pesos. �Qu�
@@ -58,7 +59,43 @@ disponiblecompra(Porcentaje,IngresoExtra,3):-bibliografo(_,Sueldo),Disponible is
 % puntuaci�n de 5 estrellas, independientemente que sean nuevos o usados?
 
 
-filtro(Titulo,Autor,Genero,Precio,Fecha,Raiting,Estado,ISBN,Resultado):-libro(Tit,Autor,Gen,Precio,Fecha,Raiting,Estado,ISBN),((not(Titulo=Tit)->sub_string(Tit,_,_,_,Titulo));Titulo=Tit),pertenece(Genero,Gen),disponible(Dinero),Precio=<Dinero,Resultado=libro(Tit,Autor,Gen,Precio,Fecha,Raiting,Estado,ISBN),write(Resultado),nl,fail.
+filtro(Titulo,Autor,Genero,Precio,Fecha,Raiting,Estado,ISBN):-retractall(resultado(X)),
+     libro(Tit,Aut,Gen,Precio,Fecha,Rai,Estado,ISBN),
+    ((not(Titulo=Tit)->sub_string(Tit,_,_,_,Titulo));Titulo=Tit),
+    ((not(Autor=Aut)->sub_string(Aut,_,_,_,Autor));Autor=Aut),
+    pertenece(Genero,Gen),
+    ((not(Rai=Raiting)->Rai>=Raiting);Rai=Raiting),
+    disponible(Dinero),
+    Precio=<Dinero,
+    Resultado=libro(Tit,Autor,Gen,Precio,Fecha,Rai,Estado,ISBN),
+    write(Resultado),nl,assert(resultado(Resultado)),fail.
 
-nofiltro(Titulo,Autor,Genero,Precio,Fecha,Raiting,Estado,ISBN,Resultado):-libro(Tit,Aut,Gen,Precio,Fecha,Raiting,Estado,ISBN),(not(((not(Titulo=Tit)->sub_string(Tit,_,_,_,Titulo));Titulo=Tit))),not(pertenece(Genero,Gen)),(not(((not(Autor=Aut)->sub_string(Aut,_,_,_,Autor));Autor=Aut))),disponible(Dinero),Precio=<Dinero,Resultado=libro(Tit,Autor,Gen,Precio,Fecha,Raiting,Estado,ISBN),write(Resultado),nl,fail.
+nofiltro(Titulo,_,_,_,_,_,_,_,1):-resultado(libro(Tit,Autor,Gen,Precio,Fecha,Raiting,Estado,ISBN)),retract(resultado(libro(Tit,Autor,Gen,Precio,Fecha,Raiting,Estado,ISBN))),
+    not((sub_string(Tit,_,_,_,Titulo))),
+    asserta(resultado(libro(Tit,Autor,Gen,Precio,Fecha,Raiting,Estado,ISBN))),write(libro(Tit,Autor,Gen,Precio,Fecha,Raiting,Estado,ISBN)),nl,fail,!.
+
+nofiltro(_,Autor,_,_,_,_,_,_,2):-resultado(libro(Tit,Aut,Gen,Precio,Fecha,Raiting,Estado,ISBN)),retract(resultado(libro(Tit,Aut,Gen,Precio,Fecha,Raiting,Estado,ISBN))),
+    not((sub_string(Aut,_,_,_,Autor))),
+    asserta(resultado(libro(Tit,Aut,Gen,Precio,Fecha,Raiting,Estado,ISBN))),write(libro(Tit,Autor,Gen,Precio,Fecha,Raiting,Estado,ISBN)),nl,fail,!.
+
+nofiltro(_,_,Genero,_,_,_,_,_,3):-resultado(libro(Tit,Aut,Gen,Precio,Fecha,Raiting,Estado,ISBN)),retract(resultado(libro(Tit,Aut,Gen,Precio,Fecha,Raiting,Estado,ISBN))),
+    not(pertenece(Genero,Gen)),
+    asserta(resultado(libro(Tit,Aut,Gen,Precio,Fecha,Raiting,Estado,ISBN))),write(libro(Tit,Aut,Gen,Precio,Fecha,Raiting,Estado,ISBN)),nl,fail,!.
+
+nofiltro(_,_,_,_,_,_,Estado,_,4):-resultado(libro(Tit,Aut,Gen,Precio,Fecha,Raiting,Est,ISBN)),retract(resultado(libro(Tit,Aut,Gen,Precio,Fecha,Raiting,Est,ISBN))),
+    not(Estado=Est),
+    asserta(resultado(libro(Tit,Aut,Gen,Precio,Fecha,Raiting,Est,ISBN))),write(libro(Tit,Aut,Gen,Precio,Fecha,Raiting,Est,ISBN)),nl,fail,!.
+
+
+
+
+
+% nofiltro(Titulo,Autor,Genero,Precio,Fecha,Raiting,Estado,ISBN,Resultado):-resultado(libro(Titulo,Autor,Genero,Precio,Fecha,Raiting,Estado,ISBN)),
+%
+    %(not(((Titulo=Tit)->sub_string(Tit,_,_,_,Titulo)))),
+    %not(pertenece(Genero,Gen)),
+    %(not((((Autor=Aut)->sub_string(Aut,_,_,_,Autor))))),
+    %disponible(Dinero),Precio=<Dinero,Resultado=libro(Tit,Autor,Gen,Precio,Fecha,Raiting,Estado,ISBN),
+    %write(Resultado),nl,fail.
+
 

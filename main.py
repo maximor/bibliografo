@@ -24,7 +24,7 @@ class Aplicacion():
         #Creacion de botones para lanzar las configuraciones
         ttk.Button(frameCabeza,text="Filtros", command=self.filtro).grid(row=0, column=0)
         ttk.Button(frameCabeza,text='Perfil', command=self.perfil).grid(row=0, column=1)
-
+        ttk.Button(frameCabeza,text='Filtrar', command=self.filtrar).grid(row=0, column=2)
         #Creando un con Frame para contener los datos de la izquierda
         frameIzquierdo = LabelFrame(self.main, text = 'Lista de libros')
         frameIzquierdo.grid(row=1, column=0)
@@ -34,7 +34,7 @@ class Aplicacion():
 
         #Tabla para presentar todos los libros
         self.tablaIzquierda = ttk.Treeview(frameIzquierdo,
-        columns=('Autor', 'Genero', 'Precio', 'Rating','Fecha', 'ISBN'), height=15)
+        columns=('Autor', 'Genero', 'Precio', 'Rating','Fecha', 'Estado'), height=15)
 
         #poniendo el scrollbar en la tabla
         vsb = ttk.Scrollbar(self.main, orient="vertical", command=self.tablaIzquierda.yview)
@@ -60,11 +60,11 @@ class Aplicacion():
         self.tablaIzquierda.heading('#5', text='Fecha')
         self.tablaIzquierda.column('#5', minwidth=0, width=100, stretch=NO)
 
-        self.tablaIzquierda.heading('#6', text='ISBN')
+        self.tablaIzquierda.heading('#6', text='Estado')
         self.tablaIzquierda.column('#6', minwidth=0, width=100, stretch=NO)
 
         #llenando la tabla superior
-        for libro in self.prolog.query("libro(T,A,G,P,D,R,_,_)"):
+        for libro in self.prolog.query("libro(T,A,G,P,D,R,E,_)"):
             self.tablaIzquierda.insert('', 
             0, 
             text=libro["T"], 
@@ -72,11 +72,12 @@ class Aplicacion():
             libro["G"],
             libro["P"],
             libro["R"],
-            libro["D"]))
+            libro["D"],
+            libro["E"]))
 
         #Tabla para presentar las sugerencias
         self.tablaDerecha = ttk.Treeview(frameDerecho,
-        columns=('Autor', 'Genero', 'Precio', 'Rating', 'Fecha', 'ISBN'), height=10)
+        columns=('Autor', 'Genero', 'Precio', 'Rating', 'Fecha', 'Estado'), height=10)
 
         #poniendo el scrollbar en la tabla
         vsb2 = ttk.Scrollbar(self.main, orient="vertical", command=self.tablaDerecha.yview)
@@ -102,23 +103,90 @@ class Aplicacion():
         self.tablaDerecha.heading('#5', text='Fecha')
         self.tablaDerecha.column('#5', minwidth=0, width=100, stretch=NO)
 
-        self.tablaDerecha.heading('#6', text='ISBN')
+        self.tablaDerecha.heading('#6', text='Estado')
         self.tablaDerecha.column('#6', minwidth=0, width=100, stretch=NO)
 
     def cargarBaseBibliografo(self):
         self.prolog.consult("ProyectoFinal.pl")
-        for i in self.prolog.query("disponiblecompra(5000,10,1000,2)"):
-            print(i)
+        # for i in self.prolog.query("disponiblecompra(5000,10,1000,2)"):
+        #     print(i)
 
-        for i in self.prolog.query("filtro(Titulo,Autor,Genero,Precio,Fecha,Raiting,Estado,ISBN)"):
-            print(i)
+        # for i in self.prolog.query("filtro(Titulo,Autor,Genero,Precio,Fecha,Raiting,Estado,ISBN)"):
+        #     print(i)
 
-        libros = {}
-        for i in self.prolog.query("resultado(libro(Titulo,Autor,Genero,Precio,Fecha,Raiting,Estado,_))"):
-            libros[i["Titulo"]] = i 
+        # libros = {}
+        # for i in self.prolog.query("resultado(libro(Titulo,Autor,Genero,Precio,Fecha,Raiting,Estado,_))"):
+        #     libros[i["Titulo"]] = i 
         
-        print(libros)
-            
+        # print(libros)
+
+    def filtrar(self):
+        for i in self.tablaDerecha.get_children():
+            self.tablaDerecha.delete(i)
+
+        if len(list(self.prolog.query("bibliografo(X,Y)"))) > 0:
+            for bibliografo in list(self.prolog.query("bibliografo(X,Y)")):
+                if len(list(self.prolog.query("bibliografoEx(W,Z)"))) > 0:
+                    for bibliografoEx in list(self.prolog.query("bibliografoEx(W,Z)")):
+                        if len(list(self.prolog.query("filtrodb(T,A,C,E,EE,D)"))) == 0:
+                            for i in self.prolog.query("disponiblecompra("+str(bibliografo["Y"])+","+str(bibliografoEx["W"])+","+str(bibliografoEx['Z'])+",2)"):
+                                print
+                            for i in self.prolog.query("filtro(Titulo,Autor,Genero,Precio,Fecha,Raiting,Estado,ISBN)"):
+                                print
+
+                            general = {}
+                            #llenando la tabla superior
+                            for libro in self.prolog.query("resultado(libro(Titulo,Autor,Genero,Precio,Fecha,Raiting,Estado,_))"):
+                                general[libro["Titulo"]] = [libro['Titulo'],libro['Autor'],libro['Genero'],libro['Precio'],libro['Fecha'],libro['Raiting'],libro['Estado']]
+                            
+                            for key, val in general.items():
+                                self.tablaDerecha.insert('',
+                                0,text=val[0],
+                                value=(val[1],
+                                val[2],
+                                val[3],
+                                val[5],
+                                val[4],
+                                val[6]))
+                        else:
+                            for filtrodb in list(self.prolog.query("filtrodb(T,A,C,E,EE,D)")):
+                                print(filtrodb)
+                                titulo = "Titulo"
+                                autor = "Autor"
+                                categoria = "Categoria"
+                                ee = 2
+                                if filtrodb['T'] != "no":
+                                    titulo = filtrodb["T"]
+                                if filtrodb["A"] != "no":
+                                    autor = filtrodb["A"]
+                                if filtrodb["C"] != "no":
+                                    categoria = filtrodb["A"]
+                                if filtrodb["EE"] == "porcentaje":
+                                    ee = 1
+                                elif filtrodb["EE"] == "ingreso extra":
+                                    ee = 2
+                                else: 
+                                    ee = 3
+
+                                for i in self.prolog.query("disponiblecompra("+str(bibliografo["Y"])+","+str(bibliografoEx["W"])+","+str(bibliografoEx['Z'])+","+str(ee)+")"):
+                                    print
+                                for i in self.prolog.query("filtro("+str(titulo)+","+str(autor)+","+str(categoria)+",Precio,Fecha,Raiting,"+str(filtrodb["E"])+",ISBN)"):
+                                    print
+
+                                general = {}
+                                #llenando la tabla superior
+                                for libro in self.prolog.query("resultado(libro(Titulo,Autor,Genero,Precio,Fecha,Raiting,Estado,_))"):
+                                    general[libro["Titulo"]] = [libro['Titulo'],libro['Autor'],libro['Genero'],libro['Precio'],libro['Fecha'],libro['Raiting'],libro['Estado']]
+                            
+                                for key, val in general.items():
+                                    self.tablaDerecha.insert('',
+                                    0,text=val[0],
+                                    value=(val[1],
+                                    val[2],
+                                    val[3],
+                                    val[5],
+                                    val[4],
+                                    val[6]))
 if __name__ == '__main__':
     main = Tk()
     aplicacion = Aplicacion(main)

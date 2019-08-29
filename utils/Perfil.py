@@ -37,7 +37,7 @@ class Perfil:
         self.sueldoEx = Entry(self.dialogPerfil)
         self.sueldoEx.grid(row = 5, column = 1)
 
-        ttk.Button(self.dialogPerfil, text = 'Guardar', command= self.guardar).grid(row = 6, column = 0)
+        ttk.Button(self.dialogPerfil, text = 'Guardar', command= self.guardar).grid(row = 6, column = 1)
 
         #Cargando la configuracion 
         if self.existeBibliografo():
@@ -63,12 +63,12 @@ class Perfil:
             if self.name.get() != '' and self.sueldo.get() != '':
                 self.prolog.assertz("bibliografo("+self.name.get()+","+self.sueldo.get()+")")
             
-            if self.porcentaje.get() != '':
+            if self.porcentaje.get() != '' and self.sueldoEx.get() == '':
                 self.prolog.assertz("bibliografoEx("+self.porcentaje.get()+",0)")
-            elif self.sueldoEx.get() != '':
+            elif self.sueldoEx.get() != '' and self.porcentaje.get() == '':
                 self.prolog.assertz("bibliografoEx(0,"+self.sueldoEx.get()+")")
             else:
-                self.prolog.assertz("bibliografoEx(0,0)")
+                self.prolog.assertz("bibliografoEx("+self.porcentaje.get()+","+self.sueldoEx.get()+")")
 
         else: 
             list(self.prolog.query("actualizarSueldo("+self.sueldo.get()+")"))

@@ -1,9 +1,12 @@
 from tkinter import ttk
 from tkinter import *
 from pyswip import Prolog
+from entidades import Filtros
 
 class Filtro:
     def __init__(self):
+        self.prolog = Prolog()
+        self.prolog.consult("ProyectoFinal.pl")
         self.__getFiltro()
 
     def __getFiltro(self):
@@ -11,77 +14,102 @@ class Filtro:
         self.dialogFiltro.title('Filtro del Bibliofilo')
         
         Label(self.dialogFiltro, text = 'Título: ').grid(row = 1, column = 0)
-        titulo = Entry(self.dialogFiltro)
-        titulo.focus()
-        titulo.grid(row = 1, column = 1)
-        estadoCheckTitulo = IntVar()
-        tituloCheck = Checkbutton(self.dialogFiltro, text = "No Titulo", variable=estadoCheckTitulo, onvalue = 1, offvalue = 0)
-        tituloCheck.grid(row = 1, column = 2)
+        self.titulo = Entry(self.dialogFiltro)
+        self.titulo.focus()
+        self.titulo.grid(row = 1, column = 1)
+        self.estadoCheckTitulo = IntVar()
+        self.tituloCheck = Checkbutton(self.dialogFiltro, text = "No Titulo", variable=self.estadoCheckTitulo, onvalue = 1, offvalue = 0)
+        self.tituloCheck.grid(row = 1, column = 2)
         
 
         Label(self.dialogFiltro, text = 'Autor: ').grid(row = 2, column = 0)
-        autor = Entry(self.dialogFiltro)
-        autor.grid(row = 2, column = 1)
-        estadoCheckAutor = IntVar()
-        autorCheck = Checkbutton(self.dialogFiltro, text = "No Autor", variable=estadoCheckAutor, onvalue = 1, offvalue = 0)
-        autorCheck.grid(row = 2, column = 2)
+        self.autor = Entry(self.dialogFiltro)
+        self.autor.grid(row = 2, column = 1)
+        self.estadoCheckAutor = IntVar()
+        self.autorCheck = Checkbutton(self.dialogFiltro, text = "No Autor", variable=self.estadoCheckAutor, onvalue = 1, offvalue = 0)
+        self.autorCheck.grid(row = 2, column = 2)
 
         Label(self.dialogFiltro, text = 'Categoría: ').grid(row = 3, column = 0)
-        categoria = Entry(self.dialogFiltro)
-        categoria.grid(row = 3, column = 1)
-        estadoCheckCategoria = IntVar()
-        categoriaCheck = Checkbutton(self.dialogFiltro, text = "No Categoría", variable=estadoCheckCategoria, onvalue = 1, offvalue = 0)
-        categoriaCheck.grid(row = 3, column = 2)
+        self.categoria = Entry(self.dialogFiltro)
+        self.categoria.grid(row = 3, column = 1)
+        self.estadoCheckCategoria = IntVar()
+        self.categoriaCheck = Checkbutton(self.dialogFiltro, text = "No Categoría", variable=self.estadoCheckCategoria, onvalue = 1, offvalue = 0)
+        self.categoriaCheck.grid(row = 3, column = 2)
 
         Label(self.dialogFiltro, text = 'Estado: ').grid(row = 5, column = 0)
-        estado = ttk.Combobox(self.dialogFiltro,
+        self.estado = ttk.Combobox(self.dialogFiltro,
         values=[
             "Nuevo",
             "Usado",
             "n/a"
         ])
-        estado.grid(row = 5, column = 1)
-        estado.current(0)
-        estadoCheckEstado = IntVar()
-        estadoCheck = Checkbutton(self.dialogFiltro, text = "No Estado", variable=estadoCheckEstado, onvalue = 1, offvalue = 0)
-        estadoCheck.grid(row = 5, column = 2)
+        self.estado.grid(row = 5, column = 1)
+        self.estado.current(0)
+        self.estadoCheckEstado = IntVar()
+        self.estadoCheck = Checkbutton(self.dialogFiltro, text = "No Estado", variable=self.estadoCheckEstado, onvalue = 1, offvalue = 0)
+        self.estadoCheck.grid(row = 5, column = 2)
         
         Label(self.dialogFiltro, text = 'Estado Extra: ').grid(row = 6, column = 0)
-        estadoExtra = ttk.Combobox(self.dialogFiltro,
+        self.estadoExtra = ttk.Combobox(self.dialogFiltro,
         values=[
             "Porcentaje",
             "Ingreso Extra",
             "Porcentaje e Ingraso Extra"
         ])
-        estadoExtra.grid(row = 6, column = 1)
-        estadoExtra.current(0)
-        estadoCheckestadoExtra = IntVar()
-        estadoExtraCheck = Checkbutton(self.dialogFiltro, text = "No Estado Extra", variable=estadoCheckestadoExtra, onvalue = 1, offvalue = 0)
-        estadoExtraCheck.grid(row = 6, column = 2)
-        estadoExtraCheck.select()
+        self.estadoExtra.grid(row = 6, column = 1)
+        self.estadoExtra.current(0)
+        self.estadoCheckestadoExtra = IntVar()
+        self.estadoExtraCheck = Checkbutton(self.dialogFiltro, text = "No Estado Extra", variable=self.estadoCheckestadoExtra, onvalue = 1, offvalue = 0)
+        self.estadoExtraCheck.grid(row = 6, column = 2)
 
         Label(self.dialogFiltro, text = 'FechaI: ').grid(row = 7, column = 0)
-        dia = Entry(self.dialogFiltro)
-        dia.grid(row = 7, column = 1)
-        mes = Entry(self.dialogFiltro)
-        mes.grid(row = 7, column = 2)
-        anio = Entry(self.dialogFiltro)
-        anio.grid(row = 7, column = 3)
-        estadoCheckFechaI = IntVar()
-        FechaICheck = Checkbutton(self.dialogFiltro, text = "No FechaI", variable=estadoCheckFechaI, onvalue = 1, offvalue = 0)
-        FechaICheck.grid(row = 7, column = 4)
+        self.dia = Entry(self.dialogFiltro)
+        self.dia.grid(row = 7, column = 1)
+        self.mes = Entry(self.dialogFiltro)
+        self.mes.grid(row = 7, column = 2)
+        self.anio = Entry(self.dialogFiltro)
+        self.anio.grid(row = 7, column = 3)
+        self.estadoCheckFechaI = IntVar()
+        self.FechaICheck = Checkbutton(self.dialogFiltro, text = "No FechaI", variable=self.estadoCheckFechaI, onvalue = 1, offvalue = 0)
+        self.FechaICheck.grid(row = 7, column = 4)
 
         Label(self.dialogFiltro, text = 'FechaF: ').grid(row = 8, column = 0)
-        diaf = Entry(self.dialogFiltro)
-        diaf.grid(row = 8, column = 1)
-        mesf = Entry(self.dialogFiltro)
-        mesf.grid(row = 8, column = 2)
-        aniof = Entry(self.dialogFiltro)
-        aniof.grid(row = 8, column = 3)
-        estadoCheckFechaF = IntVar()
-        FechaFCheck = Checkbutton(self.dialogFiltro, text = "No FechaF", variable=estadoCheckFechaF, onvalue = 1, offvalue = 0)
-        FechaFCheck.grid(row = 8, column = 4)
+        self.diaf = Entry(self.dialogFiltro)
+        self.diaf.grid(row = 8, column = 1)
+        self.mesf = Entry(self.dialogFiltro)
+        self.mesf.grid(row = 8, column = 2)
+        self.aniof = Entry(self.dialogFiltro)
+        self.aniof.grid(row = 8, column = 3)
+        self.estadoCheckFechaF = IntVar()
+        self.FechaFCheck = Checkbutton(self.dialogFiltro, text = "No FechaF", variable=self.estadoCheckFechaF, onvalue = 1, offvalue = 0)
+        self.FechaFCheck.grid(row = 8, column = 4)
 
-        ttk.Button(self.dialogFiltro, text = 'Guardar').grid(row = 9, column = 2)
+        ttk.Button(self.dialogFiltro, text = 'Guardar', command=self.guardar).grid(row = 9, column = 2)
         
         self.dialogFiltro.mainloop()
+
+    def guardar(self):
+        titulo = "no"
+        autor = "no"
+        categoria = "no"
+        estado = "no"
+        estadoExtra = "no"
+
+
+        if self.estadoCheckTitulo.get() == 0 and self.titulo.get() != '':
+            titulo = self.titulo.get()
+    
+        if self.estadoCheckAutor.get() == 0 and self.autor.get() != '':
+            autor = self.autor.get()
+        
+        if self.estadoCheckCategoria.get() == 0 and self.categoria.get() != '':
+            categoria = self.categoria.get().split(",")
+
+        if self.estadoCheckEstado.get() == 0:
+            estado = self.estado.get().lower()
+
+        if self.estadoCheckestadoExtra.get() == 0:
+            estadoExtra = self.estadoExtra.get().lower()
+        
+        self.prolog.assertz("filtrodb("+str(titulo)+","+str(autor)+","+str(categoria)+","+str(estado)+",'"+str(estadoExtra)+"', '2019-20-05')")
+        
