@@ -14,7 +14,8 @@ class Aplicacion():
 
         self.main = main
         self.main.title('Titulo de la aplicacion')
-        self.main.geometry('1008x650')
+        self.main.geometry('1020x650')
+        self.main.resizable(width=0, height=0)
 
         #Creando el header frame de la aplicacion
         frameCabeza = LabelFrame(self.main, text='Opciones')
@@ -34,6 +35,12 @@ class Aplicacion():
         #Tabla para presentar todos los libros
         self.tablaIzquierda = ttk.Treeview(frameIzquierdo,
         columns=('Autor', 'Genero', 'Precio', 'Rating','Fecha', 'ISBN'), height=15)
+
+        #poniendo el scrollbar en la tabla
+        vsb = ttk.Scrollbar(self.main, orient="vertical", command=self.tablaIzquierda.yview)
+        vsb.place(x=985, y=86, height=300)
+        self.tablaIzquierda.configure(yscrollcommand=vsb.set)
+
         self.tablaIzquierda.grid(row=4, column=0)
         self.tablaIzquierda.heading('#0', text='Titulo')
         self.tablaIzquierda.column('#0', minwidth=0, width=200, stretch=NO)
@@ -70,6 +77,12 @@ class Aplicacion():
         #Tabla para presentar las sugerencias
         self.tablaDerecha = ttk.Treeview(frameDerecho,
         columns=('Autor', 'Genero', 'Precio', 'Rating', 'Fecha', 'ISBN'), height=10)
+
+        #poniendo el scrollbar en la tabla
+        vsb2 = ttk.Scrollbar(self.main, orient="vertical", command=self.tablaDerecha.yview)
+        vsb2.place(x=985, y=430, height=203)
+        self.tablaDerecha.configure(yscrollcommand=vsb2.set)
+
         self.tablaDerecha.grid(row=4, column=0)
         self.tablaDerecha.heading('#0', text='Titulo')
         self.tablaDerecha.column('#0', minwidth=0, width=200, stretch=NO)
@@ -94,9 +107,18 @@ class Aplicacion():
 
     def cargarBaseBibliografo(self):
         self.prolog.consult("ProyectoFinal.pl")
-        for i in self.prolog.query("bibliografo(X,Y)"):
+        for i in self.prolog.query("disponiblecompra(5000,10,1000,2)"):
             print(i)
 
+        for i in self.prolog.query("filtro(Titulo,Autor,Genero,Precio,Fecha,Raiting,Estado,ISBN)"):
+            print(i)
+
+        libros = {}
+        for i in self.prolog.query("resultado(libro(Titulo,Autor,Genero,Precio,Fecha,Raiting,Estado,_))"):
+            libros[i["Titulo"]] = i 
+        
+        print(libros)
+            
 if __name__ == '__main__':
     main = Tk()
     aplicacion = Aplicacion(main)
