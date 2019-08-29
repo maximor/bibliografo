@@ -108,6 +108,7 @@ class Aplicacion():
 
     def cargarBaseBibliografo(self):
         self.prolog.consult("ProyectoFinal.pl")
+        self.prolog.consult("libros.pl")
         # for i in self.prolog.query("disponiblecompra(5000,10,1000,2)"):
         #     print(i)
 
@@ -128,7 +129,7 @@ class Aplicacion():
             for bibliografo in list(self.prolog.query("bibliografo(X,Y)")):
                 if len(list(self.prolog.query("bibliografoEx(W,Z)"))) > 0:
                     for bibliografoEx in list(self.prolog.query("bibliografoEx(W,Z)")):
-                        if len(list(self.prolog.query("filtrodb(T,A,C,E,EE,D)"))) == 0:
+                        if len(list(self.prolog.query("filtrodb(T,A,C,E,EE,D,ES)"))) == 0:
                             for i in self.prolog.query("disponiblecompra("+str(bibliografo["Y"])+","+str(bibliografoEx["W"])+","+str(bibliografoEx['Z'])+",2)"):
                                 print
                             for i in self.prolog.query("filtro(Titulo,Autor,Genero,Precio,Fecha,Raiting,Estado,ISBN)"):
@@ -149,7 +150,7 @@ class Aplicacion():
                                 val[4],
                                 val[6]))
                         else:
-                            for filtrodb in list(self.prolog.query("filtrodb(T,A,C,E,EE,D)")):
+                            for filtrodb in list(self.prolog.query("filtrodb(T,A,C,E,EE,D,ES)")):
                                 print(filtrodb)
                                 titulo = "Titulo"
                                 autor = "Autor"
@@ -161,6 +162,8 @@ class Aplicacion():
                                     autor = filtrodb["A"]
                                 if filtrodb["C"] != "no":
                                     categoria = filtrodb["A"]
+                                
+
                                 if filtrodb["EE"] == "porcentaje":
                                     ee = 1
                                 elif filtrodb["EE"] == "ingreso extra":
@@ -173,6 +176,22 @@ class Aplicacion():
                                 for i in self.prolog.query("filtro("+str(titulo)+","+str(autor)+","+str(categoria)+",Precio,Fecha,Raiting,"+str(filtrodb["E"])+",ISBN)"):
                                     print
 
+                                if filtrodb["D"]  != "no":
+                                    for i in self.prolog.query("categoria("+str(filtrodb["D"])+")"):
+                                        print
+
+                                if filtrodb["ES"] == 1:
+                                    if filtrodb['T'] != "no":
+                                        for noFiltro in self.prolog.query("nofiltro("+str(filtrodb['T'])+",_,_,_,_,_,_,_,1)"):
+                                            print
+                                    if filtrodb["A"] != "no":
+                                        for noFiltro in self.prolog.query("nofiltro(_,"+str(filtrodb["A"])+",_,_,_,_,_,_,2)"):
+                                            print
+                                    if filtrodb["E"] != "no":
+                                        for noFiltro in self.prolog.query("nofiltro(_,_,_,_,_,_,"+str(filtrodb["E"])+",_,4)"):
+                                            print
+                                    
+                                        
                                 general = {}
                                 #llenando la tabla superior
                                 for libro in self.prolog.query("resultado(libro(Titulo,Autor,Genero,Precio,Fecha,Raiting,Estado,_))"):
@@ -187,6 +206,8 @@ class Aplicacion():
                                     val[5],
                                     val[4],
                                     val[6]))
+        
+
 if __name__ == '__main__':
     main = Tk()
     aplicacion = Aplicacion(main)

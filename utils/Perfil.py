@@ -6,6 +6,7 @@ class Perfil:
     def __init__(self):
         self.prolog = Prolog()
         self.prolog.consult("ProyectoFinal.pl")
+        self.prolog.consult("libros.pl")
         self.__getPerfil()
         
     def __getPerfil(self):
